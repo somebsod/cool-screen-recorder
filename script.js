@@ -74,11 +74,11 @@ recordZone.addEventListener('click', async () => {
         
         const micSource = audioContext.createMediaStreamSource(micStream);
         const micGain = audioContext.createGain();
-        micGain.gain.value = 10; 
+        micGain.gain.value = 2; 
 
         const waveshaper = audioContext.createWaveShaper();
         waveshaper.curve = makeDistortionCurve(400); 
-        waveshaper.oversample = '4x';
+        waveshaper.oversample = '3x';
 
         micSource.connect(micGain);
         micGain.connect(waveshaper);
