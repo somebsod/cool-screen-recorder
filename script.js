@@ -46,8 +46,8 @@ recordZone.addEventListener('click', async () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        canvas.width = 640;
-        canvas.height = 360;
+        canvas.width = 854;
+        canvas.height = 480;
 
         videoElement.onloadedmetadata = () => {
             canvasRenderInterval = setInterval(() => {
@@ -77,7 +77,7 @@ recordZone.addEventListener('click', async () => {
         micGain.gain.value = 1; 
 
         const waveshaper = audioContext.createWaveShaper();
-        waveshaper.curve = makeDistortionCurve(100); 
+        waveshaper.curve = makeDistortionCurve(75); 
         waveshaper.oversample = '4x';
 
         micSource.connect(micGain);
