@@ -10,7 +10,7 @@ let audioContext;
 let isRecording = false;
 let canvasRenderInterval;
 
-// ТВОЙ ТЕКСТ ССЫЛКИ ДЛЯ ЗАПИСИ (измени его здесь)
+// ТВОЙ ТЕКСТ ССЫЛКИ ДЛЯ ЗАПИСИ
 const WATERMARK_TEXT = "https://somebsod.github.io/cool-screen-recorder/";
 
 recordZone.addEventListener('click', async () => {
@@ -41,53 +41,50 @@ recordZone.addEventListener('click', async () => {
         videoElement.srcObject = screenStream;
         videoElement.autoplay = true;
         videoElement.playsInline = true;
+        videoElement.muted = true; // Важно: глушим этот плеер, чтобы не было эха в динамиках!
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Жестко выставляем размер кадра 360p для записи
         canvas.width = 640;
         canvas.height = 360;
 
-        // Рендер-петля: берем кадр с экрана, жмем до 360p и рисуем текст сверху
         videoElement.onloadedmetadata = () => {
             canvasRenderInterval = setInterval(() => {
                 if (videoElement.readyState >= 2) {
-                    // Рисуем текущий кадр экрана, растягивая/сжимая его под 360p
                     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
                     
-                    // Настройки полупрозрачного текста ссылки наверху видео
                     ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; 
                     ctx.font = "bold 14px 'Courier New', monospace";
                     ctx.textAlign = "center";
                     
-                    // Рисуем текст по центру сверху (с небольшим отступом в 25 пикселей)
                     ctx.fillText(WATERMARK_TEXT, canvas.width / 2, 25);
                 }
-            }, 1000 / 15); // Обновляем строго 15 раз в секунду
+            }, 1000 / 15);
         };
 
-        // Захватываем видеопоток с холста (тоже 15 FPS)
         const canvasStream = canvas.captureStream(15);
 
         // 4. Ломаем звук через Web Audio API
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const destination = audioContext.createMediaStreamDestination();
+        
+        // Назначение только для записи (в динамики ПК этот ломаный звук НЕ пойдет)
+        const recordDestination = audioContext.createMediaStreamDestination();
 
-        // Микрофон: +20дБ и жесткий хрип
+        // --- МИКРОФОН: +20дБ и жесткий хрип ---
         const micSource = audioContext.createMediaStreamSource(micStream);
         const micGain = audioContext.createGain();
-        micGain.gain.value = 3; 
+        micGain.gain.value = 10; 
 
         const waveshaper = audioContext.createWaveShaper();
         waveshaper.curve = makeDistortionCurve(400); 
-        waveshaper.oversample = '3x';
+        waveshaper.oversample = '4x';
 
         micSource.connect(micGain);
         micGain.connect(waveshaper);
-        waveshaper.connect(destination);
+        waveshaper.connect(recordDestination); // Подключаем только к записи
 
-        // Системный звук: эффект дешевых колонок и эха
+        // --- СИСТЕМНЫЙ ЗВУК: эффект дешевых колонок и эха ---
         if (screenStream.getAudioTracks().length > 0) {
             const systemSource = audioContext.createMediaStreamSource(screenStream);
             
@@ -109,20 +106,19 @@ recordZone.addEventListener('click', async () => {
             systemSource.connect(hpFilter);
             hpFilter.connect(bpFilter);
             
-            bpFilter.connect(destination);
+            bpFilter.connect(recordDestination);
             bpFilter.connect(delay);
             delay.connect(delayGain);
-            delayGain.connect(destination);
+            delayGain.connect(recordDestination); // Подключаем только к записи
         }
 
-        // 5. Собираем треки (видео берем с CANVAS, а звук из деструктора аудио)
+        // 5. Собираем треки (видео с CANVAS, звук из изолированного recordDestination)
         const mixedTracks = [
             ...canvasStream.getVideoTracks(),
-            ...destination.stream.getAudioTracks()
+            ...recordDestination.stream.getAudioTracks()
         ];
         const combinedStream = new MediaStream(mixedTracks);
 
-        // Ограничиваем битрейт для эффекта пиксельного "мыла"
         const options = {
             mimeType: 'video/webm;codecs=vp8,opus', 
             videoBitsPerSecond: 400000 
@@ -141,18 +137,15 @@ recordZone.addEventListener('click', async () => {
             statusText.innerText = "CLICK HERE TO RECORD";
             isRecording = false;
 
-            // Останавливаем интервал рисования и железки
             clearInterval(canvasRenderInterval);
             screenStream.getTracks().forEach(track => track.stop());
             micStream.getTracks().forEach(track => track.stop());
             videoElement.srcObject = null;
             audioContext.close();
 
-            // Сохраняем результат
             const blob = new Blob(recordedChunks, { type: 'video/mp4' });
             const videoURL = URL.createObjectURL(blob);
 
-            // Показываем плеер
             previewVideo.src = videoURL;
             downloadLink.href = videoURL;
             downloadLink.download = `cool_recording_${Date.now()}.mp4`;
