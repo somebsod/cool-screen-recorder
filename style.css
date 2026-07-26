@@ -1,0 +1,99 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: "Courier New", Courier, monospace;
+    text-align: center;
+    padding-top: 50px;
+}
+
+/* Ссылка на сайт наверху */
+.top-link {
+    font-size: 14px;
+    color: #00ff00;
+    margin-bottom: 30px;
+    display: block;
+    text-decoration: underline;
+}
+
+/* Большой квадрат-кнопка */
+#record-zone {
+    width: 300px;
+    height: 300px;
+    border: 5px dashed #ff00ff;
+    margin: 0 auto 30px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #111;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#record-zone:hover {
+    background-color: #222;
+    border-color: #00ffff;
+}
+
+.zone-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Радужный текст (переливается за счет анимации смещения градиента) */
+.rainbow-text {
+    font-size: 48px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet, red);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow-move 3s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes rainbow-move {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* Наклонный подзаголовок */
+.subtitle {
+    font-size: 20px;
+    font-style: italic;
+    color: #ccc;
+    margin-top: 0;
+    margin-bottom: 40px;
+}
+
+/* Видеоплеер и кнопка скачивания */
+#preview-container {
+    display: none;
+    margin-top: 30px;
+}
+
+video {
+    width: 480px;
+    max-width: 90%;
+    border: 3px solid #fff;
+    background: #000;
+}
+
+.download-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #00ff00;
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+
+.download-btn:hover {
+    background-color: #fff;
+}
