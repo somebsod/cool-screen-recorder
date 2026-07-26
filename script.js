@@ -11,7 +11,7 @@ let isRecording = false;
 let canvasRenderInterval;
 
 // ТВОЙ ТЕКСТ ССЫЛКИ ДЛЯ ЗАПИСИ (измени его здесь)
-const WATERMARK_TEXT = "://my-cool-recorder-site.com";
+const WATERMARK_TEXT = "https://somebsod.github.io/cool-screen-recorder/";
 
 recordZone.addEventListener('click', async () => {
     if (isRecording) {
