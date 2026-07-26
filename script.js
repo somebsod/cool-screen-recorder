@@ -10,7 +10,7 @@ let audioContext;
 let isRecording = false;
 let canvasRenderInterval;
 
-// ТВОЙ ТЕКСТ ССЫЛКИ ДЛЯ ЗАПИСИ
+
 const WATERMARK_TEXT = "https://somebsod.github.io/cool-screen-recorder/";
 
 recordZone.addEventListener('click', async () => {
@@ -20,10 +20,10 @@ recordZone.addEventListener('click', async () => {
     }
 
     try {
-        // 1. Запрашиваем микрофон
+        
         const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-        // 2. Запрашиваем экран (360p, 15 FPS)
+        
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
                 width: { ideal: 640 },  
@@ -36,12 +36,12 @@ recordZone.addEventListener('click', async () => {
         statusText.innerText = "RECORDING... CLICK TO STOP";
         isRecording = true;
 
-        // 3. Создаем невидимый плеер для захвата кадров и Canvas для рисования ссылки
+        
         const videoElement = document.createElement('video');
         videoElement.srcObject = screenStream;
         videoElement.autoplay = true;
         videoElement.playsInline = true;
-        videoElement.muted = true; // Важно: глушим этот плеер, чтобы не было эха в динамиках!
+        videoElement.muted = true; 
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -65,13 +65,13 @@ recordZone.addEventListener('click', async () => {
 
         const canvasStream = canvas.captureStream(15);
 
-        // 4. Ломаем звук через Web Audio API
+       
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Назначение только для записи (в динамики ПК этот ломаный звук НЕ пойдет)
+        
         const recordDestination = audioContext.createMediaStreamDestination();
 
-        // --- МИКРОФОН: +20дБ и жесткий хрип ---
+        
         const micSource = audioContext.createMediaStreamSource(micStream);
         const micGain = audioContext.createGain();
         micGain.gain.value = 10; 
@@ -82,9 +82,9 @@ recordZone.addEventListener('click', async () => {
 
         micSource.connect(micGain);
         micGain.connect(waveshaper);
-        waveshaper.connect(recordDestination); // Подключаем только к записи
+        waveshaper.connect(recordDestination); 
 
-        // --- СИСТЕМНЫЙ ЗВУК: эффект дешевых колонок и эха ---
+        
         if (screenStream.getAudioTracks().length > 0) {
             const systemSource = audioContext.createMediaStreamSource(screenStream);
             
@@ -109,10 +109,10 @@ recordZone.addEventListener('click', async () => {
             bpFilter.connect(recordDestination);
             bpFilter.connect(delay);
             delay.connect(delayGain);
-            delayGain.connect(recordDestination); // Подключаем только к записи
+            delayGain.connect(recordDestination); 
         }
 
-        // 5. Собираем треки (видео с CANVAS, звук из изолированного recordDestination)
+        
         const mixedTracks = [
             ...canvasStream.getVideoTracks(),
             ...recordDestination.stream.getAudioTracks()
