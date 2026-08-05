@@ -26,9 +26,9 @@ recordZone.addEventListener('click', async () => {
         
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-                width: { ideal: 640 },  
-                height: { ideal: 360 },
-                frameRate: { ideal: 15 } 
+                width: { ideal: 800 },  
+                height: { ideal: 600 },
+                frameRate: { ideal: 26 } 
             },
             audio: true
         });
